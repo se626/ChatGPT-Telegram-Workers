@@ -230,7 +230,7 @@ class Environment extends EnvironmentConfig {
     this.merge = this.merge.bind(this);
   }
   merge(source) {
-    this.DATABASE = source.DATABASE;
+    null = source.DATABASE;
     this.API_GUARD = source.API_GUARD;
     this.mergeCommands(
       "CUSTOM_COMMAND_",
@@ -384,7 +384,7 @@ class WorkerContext {
     const SHARE_CONTEXT = new ShareContext(token, context);
     const USER_CONFIG = Object.assign({}, ENV.USER_CONFIG);
     try {
-      const userConfig = JSON.parse(await ENV.DATABASE.get(SHARE_CONTEXT.configStoreKey));
+//       const userConfig = JSON.parse(await ENV.DATABASE.get(SHARE_CONTEXT.configStoreKey));
       ConfigMerger.merge(USER_CONFIG, ConfigMerger.trim(userConfig, ENV.LOCK_USER_CONFIG_KEYS) || {});
     } catch (e) {
       console.warn(e);
@@ -409,7 +409,7 @@ class WorkerContext {
       console.log("Update user config: ", key, this.USER_CONFIG[key]);
     }
     this.USER_CONFIG.DEFINE_KEYS = Array.from(new Set(this.USER_CONFIG.DEFINE_KEYS));
-    await ENV.DATABASE.put(
+//     await ENV.DATABASE.put(
       this.SHARE_CONTEXT.configStoreKey,
       JSON.stringify(ConfigMerger.trim(this.USER_CONFIG, ENV.LOCK_USER_CONFIG_KEYS))
     );
@@ -613,7 +613,7 @@ async function loadChatRoleWithContext(chatId, speakerId, context) {
   }
   let groupAdmin = null;
   try {
-    groupAdmin = JSON.parse(await ENV.DATABASE.get(groupAdminsKey));
+//     groupAdmin = JSON.parse(await ENV.DATABASE.get(groupAdminsKey));
   } catch (e) {
     console.error(e);
   }
@@ -624,7 +624,7 @@ async function loadChatRoleWithContext(chatId, speakerId, context) {
       return null;
     }
     groupAdmin = result.result;
-    await ENV.DATABASE.put(
+//     await ENV.DATABASE.put(
       groupAdminsKey,
       JSON.stringify(groupAdmin),
       { expiration: Date.now() / 1e3 + 120 }
@@ -1811,7 +1811,7 @@ function tokensCounter() {
 async function loadHistory(key) {
   let history = [];
   try {
-    history = JSON.parse(await ENV.DATABASE.get(key));
+//     history = JSON.parse(await ENV.DATABASE.get(key));
   } catch (e) {
     console.error(e);
   }
@@ -1879,7 +1879,7 @@ async function requestCompletionsFromLLM(params, context, agent, modifier, onStr
         }
       }
     }
-    await ENV.DATABASE.put(historyKey, JSON.stringify([...history, editParams, ...responses])).catch(console.error);
+//     await ENV.DATABASE.put(historyKey, JSON.stringify([...history, editParams, ...responses])).catch(console.error);
   }
   return text;
 }
@@ -2470,7 +2470,7 @@ class DelEnvCommandHandler {
     try {
       context.USER_CONFIG[subcommand] = null;
       context.USER_CONFIG.DEFINE_KEYS = context.USER_CONFIG.DEFINE_KEYS.filter((key) => key !== subcommand);
-      await ENV.DATABASE.put(
+//       await ENV.DATABASE.put(
         context.SHARE_CONTEXT.configStoreKey,
         JSON.stringify(ConfigMerger.trim(context.USER_CONFIG, ENV.LOCK_USER_CONFIG_KEYS))
       );
@@ -2486,7 +2486,7 @@ class ClearEnvCommandHandler {
   handle = async (message, subcommand, context) => {
     const sender = MessageSender.fromMessage(context.SHARE_CONTEXT.botToken, message);
     try {
-      await ENV.DATABASE.put(
+//       await ENV.DATABASE.put(
         context.SHARE_CONTEXT.configStoreKey,
         JSON.stringify({})
       );
@@ -2871,7 +2871,7 @@ class SaveLastMessage {
       return null;
     }
     const lastMessageKey = `last_message:${context.SHARE_CONTEXT.chatHistoryKey}`;
-    await ENV.DATABASE.put(lastMessageKey, JSON.stringify(message), { expirationTtl: 3600 });
+//     await ENV.DATABASE.put(lastMessageKey, JSON.stringify(message), { expirationTtl: 3600 });
     return null;
   };
 }
@@ -2882,7 +2882,7 @@ class OldMessageFilter {
     }
     let idList = [];
     try {
-      idList = JSON.parse(await ENV.DATABASE.get(context.SHARE_CONTEXT.lastMessageKey).catch(() => "[]")) || [];
+//       idList = JSON.parse(await ENV.DATABASE.get(context.SHARE_CONTEXT.lastMessageKey).catch(() => "[]")) || [];
     } catch (e) {
       console.error(e);
     }
@@ -2893,7 +2893,7 @@ class OldMessageFilter {
       if (idList.length > 100) {
         idList.shift();
       }
-      await ENV.DATABASE.put(context.SHARE_CONTEXT.lastMessageKey, JSON.stringify(idList));
+//       await ENV.DATABASE.put(context.SHARE_CONTEXT.lastMessageKey, JSON.stringify(idList));
     }
     return null;
   };
